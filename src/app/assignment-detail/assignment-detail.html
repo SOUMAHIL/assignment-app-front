@@ -1,0 +1,45 @@
+<div class="container mt-5">
+
+  <div *ngIf="loading" class="text-center">
+    <h2>Chargement...</h2>
+  </div>
+
+  <div *ngIf="erreur" class="alert alert-danger text-center">
+    Erreur chargement
+    <br><br>
+    <a routerLink="/" class="btn btn-primary">Retour</a>
+  </div>
+
+  <div *ngIf="assignment && !loading" class="card shadow p-4">
+
+    <h2 class="text-center mb-4">
+      {{ assignment.nom }}
+    </h2>
+
+    <p><strong>Auteur :</strong> {{ assignment.auteur }}</p>
+    <p><strong>Matière :</strong> {{ assignment.matiere }}</p>
+    <p><strong>Prof :</strong> {{ assignment.prof }}</p>
+    <p><strong>Note :</strong> {{ assignment.note }}/20</p>
+    <p><strong>Remarques :</strong> {{ assignment.remarques }}</p>
+
+    <p>
+      <strong>Statut :</strong>
+
+      <span *ngIf="assignment.rendu" class="badge bg-success">
+        Rendu
+      </span>
+
+      <span *ngIf="!assignment.rendu" class="badge bg-danger">
+        Non rendu
+      </span>
+    </p>
+
+    <div class="text-center mt-4">
+      <a routerLink="/" class="btn btn-primary">
+        ⬅ Retour
+      </a>
+    </div>
+
+  </div>
+
+</div>

@@ -1,1 +1,83 @@
-/* You can add global styles to this file, and also import other style files */
+@import "bootstrap/dist/css/bootstrap.min.css";
+@import 'ngx-toastr/toastr';
+
+body{
+  background: linear-gradient(135deg,#eef2f7,#dfe7f1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+}
+
+.container-app{
+  max-width: 1250px;
+  margin: auto;
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+.card-app{
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.08);
+  border: none;
+}
+
+.title{
+  font-size: 48px;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.text-muted{
+  font-size: 18px;
+}
+
+.btn{
+  border-radius: 12px !important;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.btn:hover{
+  transform: translateY(-2px);
+}
+
+.table{
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.table thead{
+  font-size: 17px;
+}
+
+.table tbody tr:hover{
+  background: #f8fafc;
+}
+
+.badge{
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 10px;
+}
+
+input.form-control{
+  border-radius: 12px;
+  padding: 14px;
+}
+
+h2{
+  font-weight: 800;
+}
+
+@media(max-width:768px){
+
+  .title{
+    font-size: 34px;
+  }
+
+  .card-app{
+    padding: 20px;
+  }
+
+}
