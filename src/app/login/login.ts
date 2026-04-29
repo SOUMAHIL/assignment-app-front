@@ -33,12 +33,9 @@ export class Login {
      next: (res) => {
        localStorage.setItem('token', res.token);
        localStorage.setItem('user', res.user);
-
-       this.router.navigate(['/dashboard']).then(() => {
-        window.location.reload();
-      });
-   },
-      error: () => {
+       // Sans reload — navigation propre
+       this.router.navigate(['/dashboard']);
+      },  error: () => {
         this.erreur = "Identifiants incorrects";
         this.chargement = false;
       }

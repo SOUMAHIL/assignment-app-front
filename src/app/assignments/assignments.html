@@ -2,21 +2,12 @@
 
   <!-- LOGIN -->
   <div class="text-end mb-3">
-
-    <button
-      *ngIf="!estConnecte"
-      (click)="ouvrirLogin()"
-      class="btn btn-dark">
+    <button *ngIf="!estConnecte" (click)="ouvrirLogin()" class="btn btn-dark">
       🔐 Login Admin
     </button>
-
-    <button
-      *ngIf="estConnecte"
-      (click)="logout()"
-      class="btn btn-danger">
+    <button *ngIf="estConnecte" (click)="logout()" class="btn btn-danger">
       🚪 Logout
     </button>
-
   </div>
 
   <!-- HEADER -->
@@ -27,111 +18,101 @@
 
   <!-- DASHBOARD -->
   <div class="row g-3 mb-4">
-
     <div class="col-md-4">
       <div class="card-app text-center">
         <h5>Total</h5>
-        <h2 class="text-primary">{{ totalAssignments }}</h2>
+        <h2 class="text-primary">{{ assignments.length }}</h2>
       </div>
     </div>
-
     <div class="col-md-4">
       <div class="card-app text-center">
         <h5>Rendus</h5>
         <h2 class="text-success">{{ totalRendus }}</h2>
       </div>
     </div>
-
     <div class="col-md-4">
       <div class="card-app text-center">
         <h5>Non rendus</h5>
         <h2 class="text-danger">{{ totalNonRendus }}</h2>
       </div>
     </div>
-
   </div>
 
-  <!-- FORMULAIRE (visible seulement si connecté) -->
+  <!-- FORMULAIRE (admin seulement) -->
   <div class="card-app mb-4" *ngIf="estConnecte">
-
     <div class="row g-3">
 
       <div class="col-md-4">
-        <input
-          [(ngModel)]="nouvelAssignment"
-          class="form-control"
-          placeholder="Nom du devoir">
+        <input [(ngModel)]="nouvelAssignment" class="form-control"
+          placeholder="📝 Nom du devoir">
       </div>
 
       <div class="col-md-4">
-        <input
-          [(ngModel)]="auteur"
-          class="form-control"
-          placeholder="Auteur">
+        <input [(ngModel)]="auteur" class="form-control"
+          placeholder="👤 Auteur">
       </div>
 
       <div class="col-md-4">
         <select [(ngModel)]="matiere" class="form-select">
           <option value="">Choisir matière</option>
-          <option *ngFor="let m of matieres" [value]="m.nom">
-            {{ m.nom }}
-          </option>
+          <option *ngFor="let m of matieres" [value]="m.nom">{{ m.nom }}</option>
         </select>
       </div>
 
       <div class="col-md-3">
-        <input
-          [(ngModel)]="note"
-          type="number"
-          class="form-control"
-          placeholder="Note /20">
+        <input [(ngModel)]="note" type="number" min="0" max="20"
+          class="form-control" placeholder="Note /20">
       </div>
 
-      <div class="col-md-6">
-        <input
-          [(ngModel)]="remarques"
-          class="form-control"
-          placeholder="Remarques">
+      <div class="col-md-5">
+        <input [(ngModel)]="remarques" class="form-control"
+          placeholder="💬 Remarques">
       </div>
 
-      <div class="col-md-3">
-        <button
-          (click)="ajouterAssignment()"
-          class="btn btn-primary w-100">
-          Ajouter
+      <div class="col-md-4">
+        <input [(ngModel)]="image" class="form-control"
+          placeholder="🖼 URL image (optionnel)">
+      </div>
+
+      <div class="col-md-12">
+        <button (click)="ajouterAssignment()" class="btn btn-primary w-100">
+          ➕ Ajouter
         </button>
       </div>
 
     </div>
-
   </div>
 
   <!-- RECHERCHE -->
   <div class="card-app mb-4">
     <input
       [(ngModel)]="searchText"
-       (ngModelChange)="onSearch()"
+      (ngModelChange)="onSearch()"
       class="form-control"
-      placeholder="🔎 Rechercher...">
+      placeholder="🔎 Rechercher par nom, auteur, matière...">
   </div>
 
   <!-- EXPORT -->
   <div class="mb-4 d-flex gap-2">
-
-    <button class="btn btn-danger" (click)="exportPDF()">
-      📄 PDF
-    </button>
-
-    <button class="btn btn-success" (click)="exportExcel()">
-      📊 Excel
-    </button>
-
+    <button class="btn btn-danger" (click)="exportPDF()">📄 PDF</button>
+    <button class="btn btn-success" (click)="exportExcel()">📊 Excel</button>
   </div>
 
   <!-- TABLE -->
   <div class="card-app">
 
-    <table class="table table-hover align-middle">
+    <!-- LOADING -->
+    <div *ngIf="loading" class="text-center p-4">
+      <div class="spinner-border text-primary"></div>
+      <p class="mt-2">Chargement des données...</p>
+    </div>
+
+    <!-- ERREUR -->
+    <div *ngIf="erreur && !loading" class="alert alert-danger text-center">
+      ❌ Impossible de charger les données. Vérifiez votre connexion.
+    </div>
+
+    <table *ngIf="!loading && !erreur" class="table table-hover align-middle">
 
       <thead class="table-dark">
         <tr>
@@ -142,131 +123,93 @@
           <th>Prof</th>
           <th>Note</th>
           <th>Statut</th>
-          <th width="260">Actions</th>
+          <th width="200">Actions</th>
         </tr>
       </thead>
 
       <tbody>
-
         <tr *ngFor="let a of assignmentsPages">
 
-          <!-- IMAGE -->
           <td>
-            <img [src]="a.image" width="40" height="40"
-              style="object-fit:contain">
+            <img [src]="a.image || 'https://cdn-icons-png.flaticon.com/512/1055/1055687.png'"
+              width="40" height="40" style="object-fit:contain">
           </td>
 
-          <!-- NOM -->
           <td *ngIf="editingId !== a._id">{{ a.nom }}</td>
           <td *ngIf="editingId === a._id">
-            <input [(ngModel)]="nomModifie" class="form-control">
+            <input [(ngModel)]="nomModifie" class="form-control form-control-sm">
           </td>
 
-          <!-- INFOS -->
           <td>{{ a.auteur }}</td>
           <td>{{ a.matiere }}</td>
           <td>{{ a.prof }}</td>
           <td>{{ a.note }}/20</td>
 
-          <!-- STATUT -->
           <td>
             <span *ngIf="a.rendu" class="badge bg-success">Rendu</span>
             <span *ngIf="!a.rendu" class="badge bg-danger">Non rendu</span>
           </td>
 
-          <!-- ACTIONS -->
           <td>
+            <a [routerLink]="['/detail', a._id]" class="btn btn-info btn-sm me-1">👁</a>
 
-            <!-- DETAIL (toujours visible) -->
-            <a [routerLink]="['/detail', a._id]"
-               class="btn btn-info btn-sm me-1">👁</a>
+            <button *ngIf="estConnecte" (click)="toggleRendu(a)"
+              class="btn btn-success btn-sm me-1">✔</button>
 
-            <!-- RENDU (admin seulement) -->
-            <button
-              *ngIf="estConnecte"
-              (click)="toggleRendu(a)"
-              class="btn btn-success btn-sm me-1">✔
-            </button>
+            <button *ngIf="estConnecte" (click)="supprimerAssignment(a._id)"
+              class="btn btn-danger btn-sm me-1">✖</button>
 
-            <!-- DELETE (admin seulement) -->
-            <button
-              *ngIf="estConnecte"
-              (click)="supprimerAssignment(a._id)"
-              class="btn btn-danger btn-sm me-1">✖
-            </button>
+            <button *ngIf="editingId !== a._id && estConnecte"
+              (click)="commencerEdition(a)" class="btn btn-warning btn-sm me-1">✏️</button>
 
-            <!-- EDIT (admin seulement) -->
-            <button
-              *ngIf="editingId !== a._id && estConnecte"
-              (click)="commencerEdition(a)"
-              class="btn btn-warning btn-sm me-1">✏️
-            </button>
+            <button *ngIf="editingId === a._id"
+              (click)="sauvegarderEdition(a)" class="btn btn-primary btn-sm me-1">💾</button>
 
-            <!-- SAVE -->
-            <button
-              *ngIf="editingId === a._id"
-              (click)="sauvegarderEdition(a)"
-              class="btn btn-primary btn-sm me-1">💾
-            </button>
-
-            <!-- CANCEL -->
-            <button
-              *ngIf="editingId === a._id"
-              (click)="annulerEdition()"
-              class="btn btn-secondary btn-sm">↩
-            </button>
-
+            <button *ngIf="editingId === a._id"
+              (click)="annulerEdition()" class="btn btn-secondary btn-sm">↩</button>
           </td>
 
         </tr>
 
-        <!-- VIDE -->
-        <tr *ngIf="assignmentsPages.length === 0">
+        <tr *ngIf="assignmentsPages.length === 0 && !loading">
           <td colspan="8" class="text-center text-muted p-4">
             Aucun assignment trouvé
           </td>
         </tr>
-
       </tbody>
 
     </table>
 
     <!-- PAGINATION -->
-  <div class="mt-3 d-flex gap-2 align-items-center">
+    <div class="mt-3 d-flex gap-2 align-items-center flex-wrap">
 
-    <button
-    class="btn btn-outline-secondary btn-sm"
-    (click)="premierePage()"
-    [disabled]="page === 1">
-    ⏮ Première
-   </button>
+      <button class="btn btn-outline-secondary btn-sm"
+        (click)="premierePage()" [disabled]="page === 1">
+        ⏮ Première
+      </button>
 
-   <button
-    class="btn btn-outline-primary"
-    (click)="pagePrecedente()"
-    [disabled]="page === 1">
-    ◀ Précédent
-   </button>
+      <button class="btn btn-outline-primary"
+        (click)="pagePrecedente()" [disabled]="page === 1">
+        ◀ Précédent
+      </button>
 
-   <span class="align-self-center text-muted px-2">
-    Page {{ page }} / {{ Math.ceil(totalAssignments / pageSize) }}
-   </span>
+      <span class="text-muted px-2">
+        Page {{ page }} / {{ Math.ceil(totalAssignments / pageSize) || 1 }}
+      </span>
 
-   <button
-    class="btn btn-outline-primary"
-    (click)="pageSuivante()"
-    [disabled]="page === Math.ceil(totalAssignments / pageSize)">
-    Suivant ▶
-   </button>
+      <button class="btn btn-outline-primary"
+        (click)="pageSuivante()"
+        [disabled]="page >= Math.ceil(totalAssignments / pageSize)">
+        Suivant ▶
+      </button>
 
-   <button
-    class="btn btn-outline-secondary btn-sm"
-    (click)="dernierePage()"
-    [disabled]="page === Math.ceil(totalAssignments / pageSize)">
-    Dernière ⏭
-   </button>
+      <button class="btn btn-outline-secondary btn-sm"
+        (click)="dernierePage()"
+        [disabled]="page >= Math.ceil(totalAssignments / pageSize)">
+        Dernière ⏭
+      </button>
 
-  </div>
+    </div>
 
   </div>
 
