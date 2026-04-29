@@ -15,6 +15,7 @@ export class Login {
   email = "";
   password = "";
   erreur = "";
+  chargement = false;
 
   constructor(
     private http: HttpClient,
@@ -22,23 +23,26 @@ export class Login {
   ) {}
 
   connexion() {
+    this.chargement = true;
+    this.erreur = "";
 
     this.http.post<any>('https://assignment-app-back.onrender.com/login', {
       email: this.email,
       password: this.password
     }).subscribe({
       next: (res) => {
-
         localStorage.setItem('token', res.token);
         localStorage.setItem('user', res.user);
 
-        this.router.navigate(['/']);
+        // Redirige ET force le rechargement complet
+        this.router.navigate(['/']).then(() => {
+          window.location.reload();
+        });
       },
-
       error: () => {
         this.erreur = "Identifiants incorrects";
+        this.chargement = false;
       }
     });
   }
-
 }

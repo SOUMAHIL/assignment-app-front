@@ -231,22 +231,41 @@
     </table>
 
     <!-- PAGINATION -->
-    <div class="mt-3 d-flex gap-2">
-      <button
-        class="btn btn-outline-primary"
-        (click)="pagePrecedente()"
-        [disabled]="page === 1">
-        Précédent
-      </button>
-      <span class="align-self-center text-muted">
-        Page {{ page }} / {{ Math.ceil(totalAssignments / pageSize) }}
-      </span>
-      <button
-        class="btn btn-outline-primary"
-        (click)="pageSuivante()">
-        Suivant
-      </button>
-    </div>
+  <div class="mt-3 d-flex gap-2 align-items-center">
+
+    <button
+    class="btn btn-outline-secondary btn-sm"
+    (click)="premierePage()"
+    [disabled]="page === 1">
+    ⏮ Première
+   </button>
+
+   <button
+    class="btn btn-outline-primary"
+    (click)="pagePrecedente()"
+    [disabled]="page === 1">
+    ◀ Précédent
+   </button>
+
+   <span class="align-self-center text-muted px-2">
+    Page {{ page }} / {{ Math.ceil(totalAssignments / pageSize) }}
+   </span>
+
+   <button
+    class="btn btn-outline-primary"
+    (click)="pageSuivante()"
+    [disabled]="page === Math.ceil(totalAssignments / pageSize)">
+    Suivant ▶
+   </button>
+
+   <button
+    class="btn btn-outline-secondary btn-sm"
+    (click)="dernierePage()"
+    [disabled]="page === Math.ceil(totalAssignments / pageSize)">
+    Dernière ⏭
+   </button>
+
+  </div>
 
   </div>
 

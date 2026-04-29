@@ -51,42 +51,54 @@ export class AssignmentsComponent implements OnInit {
   constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit(): void {
-    const token = localStorage.getItem('token');
-    if (token) {
-      this.estConnecte = true;
-    }
-    this.page = 1;
-    this.getAssignments();
+  const token = localStorage.getItem('token');
+  if (token) {
+    this.estConnecte = true;
   }
+  this.page = 1;
+  this.getAssignments();
+}
+
 
   // ==============================
   // GET ALL
   // ==============================
-  getAssignments() {
-    this.loading = true;
-    this.erreur = false;
+ // Remplace getAssignments
+getAssignments() {
+  this.loading = true;
+  this.erreur = false;
 
-    this.http.get<any[]>(this.API_URL).subscribe({
-      next: (data) => {
-        this.assignments = data;
+  this.http.get<any[]>(this.API_URL).subscribe({
+    next: (data) => {
+      this.assignments = data;
+      this.totalAssignments = data.length;
+      this.totalRendus = data.filter(a => a.rendu).length;
+      this.totalNonRendus = data.filter(a => !a.rendu).length;
 
-        this.totalAssignments = data.length;
-        this.totalRendus = data.filter(a => a.rendu).length;
-        this.totalNonRendus = data.filter(a => !a.rendu).length;
-
+      // ✅ Fix : on attend que assignments soit prêt
+      setTimeout(() => {
         this.page = 1;
         this.updatePage();
-
         this.loading = false;
-      },
-      error: (err) => {
-        console.error('Erreur API :', err);
-        this.erreur = true;
-        this.loading = false;
-      }
-    });
-  }
+      }, 0);
+    },
+    error: (err) => {
+      console.error('Erreur API :', err);
+      this.erreur = true;
+      this.loading = false;
+    }
+  });
+}
+// Ajoute ces 2 nouvelles méthodes
+premierePage() {
+  this.page = 1;
+  this.updatePage();
+}
 
+dernierePage() {
+  this.page = Math.ceil(this.assignments.length / this.pageSize);
+  this.updatePage();
+}
   // ==============================
   // PAGINATION
   // ==============================
