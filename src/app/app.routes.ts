@@ -6,16 +6,23 @@ import { Login } from './login/login';
 
 export const routes: Routes = [
 
-  // Page principale
+  // Redirige vers login par défaut
   {
     path: '',
-    component: AssignmentsComponent
+    redirectTo: 'login',
+    pathMatch: 'full'
   },
 
   // Page login
   {
     path: 'login',
     component: Login
+  },
+
+  // Dashboard
+  {
+    path: 'dashboard',
+    component: AssignmentsComponent
   },
 
   // Page détail assignment
@@ -27,7 +34,7 @@ export const routes: Routes = [
   // Redirection si route inconnue
   {
     path: '**',
-    redirectTo: ''
+    redirectTo: 'login'
   }
 
 ];

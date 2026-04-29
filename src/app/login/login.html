@@ -17,13 +17,29 @@
 
     <button
       (click)="connexion()"
-      class="btn btn-primary w-100">
-      Se connecter
+      class="btn btn-primary w-100"
+      [disabled]="chargement">
+      {{ chargement ? 'Connexion...' : 'Se connecter' }}
     </button>
 
     <p class="text-danger mt-3 text-center">
       {{ erreur }}
     </p>
+
+    <!-- ================================================ -->
+    <!-- ACCÈS DE TEST — Pour le professeur               -->
+    <!-- ================================================ -->
+    <div class="mt-4 p-3 rounded" style="background:#f8f9fa; border:1px dashed #ccc;">
+      <p class="mb-1 text-muted text-center" style="font-size:13px;">
+        <strong>🧑‍🏫 Accès professeur (test)</strong>
+      </p>
+      <p class="mb-1 text-center" style="font-size:13px;">
+        📧 <code>admin@assignment.com</code>
+      </p>
+      <p class="mb-0 text-center" style="font-size:13px;">
+        🔑 <code>Admin123!</code>
+      </p>
+    </div>
 
   </div>
 

@@ -30,15 +30,14 @@ export class Login {
       email: this.email,
       password: this.password
     }).subscribe({
-      next: (res) => {
-        localStorage.setItem('token', res.token);
-        localStorage.setItem('user', res.user);
+     next: (res) => {
+       localStorage.setItem('token', res.token);
+       localStorage.setItem('user', res.user);
 
-        // Redirige ET force le rechargement complet
-        this.router.navigate(['/']).then(() => {
-          window.location.reload();
-        });
-      },
+       this.router.navigate(['/dashboard']).then(() => {
+        window.location.reload();
+      });
+   },
       error: () => {
         this.erreur = "Identifiants incorrects";
         this.chargement = false;
