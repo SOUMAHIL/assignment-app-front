@@ -23,7 +23,7 @@ export class Login {
 
   connexion() {
 
-    this.http.post<any>('https://assignment-app-back.onrender.com/api/login', {
+    this.http.post<any>('https://assignment-app-back.onrender.com/login', {
       email: this.email,
       password: this.password
     }).subscribe({
