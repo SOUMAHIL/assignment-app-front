@@ -32,7 +32,7 @@ export class AssignmentDetailComponent implements OnInit {
       return;
     }
 
-    this.http.get<any>('http://localhost:3000/assignments/' + id)
+    this.http.get<any>('https://assignment-app-back.onrender.com/api/assignments/' + id)
       .subscribe((data) => {
 
         console.log("DETAIL OK :", data);
