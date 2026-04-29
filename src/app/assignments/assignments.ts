@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -44,46 +44,49 @@ export class AssignmentsComponent implements OnInit {
 
   page = 1;
   pageSize = 10;
+  Math = Math; // ← ajoute cette ligne avec les autres propriétés
 
   API_URL = 'https://assignment-app-back.onrender.com/assignments';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit(): void {
-  const token = localStorage.getItem('token');
-  if (token) {
-    this.estConnecte = true;
+    const token = localStorage.getItem('token');
+    if (token) {
+      this.estConnecte = true;
+    }
+    this.page = 1;
+    this.getAssignments();
   }
-  this.page = 1; // ← reset page au démarrage
-  this.getAssignments();
-}
+
   // ==============================
   // GET ALL
   // ==============================
   getAssignments() {
-  this.loading = true;
-  this.erreur = false;
+    this.loading = true;
+    this.erreur = false;
 
-  this.http.get<any[]>(this.API_URL).subscribe({
-    next: (data) => {
-      this.assignments = data;
+    this.http.get<any[]>(this.API_URL).subscribe({
+      next: (data) => {
+        this.assignments = data;
 
-      this.totalAssignments = data.length;
-      this.totalRendus = data.filter(a => a.rendu).length;
-      this.totalNonRendus = data.filter(a => !a.rendu).length;
+        this.totalAssignments = data.length;
+        this.totalRendus = data.filter(a => a.rendu).length;
+        this.totalNonRendus = data.filter(a => !a.rendu).length;
 
-      this.page = 1;        // ← reset à page 1
-      this.updatePage();    // ← APRÈS que data est chargé
+        this.page = 1;
+        this.updatePage();
 
-      this.loading = false;
-    },
-    error: (err) => {
-      console.error('Erreur API :', err);
-      this.erreur = true;
-      this.loading = false;
-    }
-  });
-}
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Erreur API :', err);
+        this.erreur = true;
+        this.loading = false;
+      }
+    });
+  }
+
   // ==============================
   // PAGINATION
   // ==============================
@@ -112,8 +115,7 @@ export class AssignmentsComponent implements OnInit {
   // AUTH
   // ==============================
   ouvrirLogin() {
-    // Redirige vers /login si tu as la route, sinon alert
-    alert('Utilisez la page de login');
+    this.router.navigate(['/login']);
   }
 
   logout() {

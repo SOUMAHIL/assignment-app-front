@@ -51,8 +51,8 @@
 
   </div>
 
-  <!-- FORMULAIRE -->
-  <div class="card-app mb-4">
+  <!-- FORMULAIRE (visible seulement si connecté) -->
+  <div class="card-app mb-4" *ngIf="estConnecte">
 
     <div class="row g-3">
 
@@ -71,14 +71,9 @@
       </div>
 
       <div class="col-md-4">
-        <select
-          [(ngModel)]="matiere"
-          class="form-select">
+        <select [(ngModel)]="matiere" class="form-select">
           <option value="">Choisir matière</option>
-
-          <option
-            *ngFor="let m of matieres"
-            [value]="m.nom">
+          <option *ngFor="let m of matieres" [value]="m.nom">
             {{ m.nom }}
           </option>
         </select>
@@ -107,29 +102,26 @@
         </button>
       </div>
 
-      <div class="col-md-12">
-        <input
-          [(ngModel)]="searchText"
-          class="form-control"
-          placeholder="🔎 Rechercher...">
-      </div>
-
     </div>
 
+  </div>
+
+  <!-- RECHERCHE -->
+  <div class="card-app mb-4">
+    <input
+      [(ngModel)]="searchText"
+      class="form-control"
+      placeholder="🔎 Rechercher...">
   </div>
 
   <!-- EXPORT -->
   <div class="mb-4 d-flex gap-2">
 
-    <button
-      class="btn btn-danger"
-      (click)="exportPDF()">
+    <button class="btn btn-danger" (click)="exportPDF()">
       📄 PDF
     </button>
 
-    <button
-      class="btn btn-success"
-      (click)="exportExcel()">
+    <button class="btn btn-success" (click)="exportExcel()">
       📊 Excel
     </button>
 
@@ -159,25 +151,17 @@
 
           <!-- IMAGE -->
           <td>
-            <img
-              [src]="a.image"
-              width="40"
-              height="40"
+            <img [src]="a.image" width="40" height="40"
               style="object-fit:contain">
           </td>
 
           <!-- NOM -->
-          <td *ngIf="editingId !== a._id">
-            {{ a.nom }}
-          </td>
-
+          <td *ngIf="editingId !== a._id">{{ a.nom }}</td>
           <td *ngIf="editingId === a._id">
-            <input
-              [(ngModel)]="nomModifie"
-              class="form-control">
+            <input [(ngModel)]="nomModifie" class="form-control">
           </td>
 
-          <!-- AUTRES INFOS -->
+          <!-- INFOS -->
           <td>{{ a.auteur }}</td>
           <td>{{ a.matiere }}</td>
           <td>{{ a.prof }}</td>
@@ -185,69 +169,50 @@
 
           <!-- STATUT -->
           <td>
-
-            <span
-              *ngIf="a.rendu"
-              class="badge bg-success">
-              Rendu
-            </span>
-
-            <span
-              *ngIf="!a.rendu"
-              class="badge bg-danger">
-              Non rendu
-            </span>
-
+            <span *ngIf="a.rendu" class="badge bg-success">Rendu</span>
+            <span *ngIf="!a.rendu" class="badge bg-danger">Non rendu</span>
           </td>
 
           <!-- ACTIONS -->
           <td>
 
-            <!-- DETAIL -->
-            <a
-              [routerLink]="['/detail', a._id]"
-              class="btn btn-info btn-sm me-1">
-              👁
-            </a>
+            <!-- DETAIL (toujours visible) -->
+            <a [routerLink]="['/detail', a._id]"
+               class="btn btn-info btn-sm me-1">👁</a>
 
-            <!-- RENDU -->
+            <!-- RENDU (admin seulement) -->
             <button
               *ngIf="estConnecte"
               (click)="toggleRendu(a)"
-              class="btn btn-success btn-sm me-1">
-              ✔
+              class="btn btn-success btn-sm me-1">✔
             </button>
 
-            <!-- DELETE -->
+            <!-- DELETE (admin seulement) -->
             <button
               *ngIf="estConnecte"
               (click)="supprimerAssignment(a._id)"
-              class="btn btn-danger btn-sm me-1">
-              ✖
+              class="btn btn-danger btn-sm me-1">✖
             </button>
 
-            <!-- EDIT -->
+            <!-- EDIT (admin seulement) -->
             <button
               *ngIf="editingId !== a._id && estConnecte"
               (click)="commencerEdition(a)"
-              class="btn btn-warning btn-sm me-1">
-              ✏️
+              class="btn btn-warning btn-sm me-1">✏️
             </button>
 
             <!-- SAVE -->
             <button
               *ngIf="editingId === a._id"
               (click)="sauvegarderEdition(a)"
-              class="btn btn-primary btn-sm me-1">
-              💾
+              class="btn btn-primary btn-sm me-1">💾
             </button>
 
             <!-- CANCEL -->
             <button
               *ngIf="editingId === a._id"
               (click)="annulerEdition()"
-              class="btn btn-secondary btn-sm">
-              ↩
+              class="btn btn-secondary btn-sm">↩
             </button>
 
           </td>
@@ -267,20 +232,20 @@
 
     <!-- PAGINATION -->
     <div class="mt-3 d-flex gap-2">
-
       <button
         class="btn btn-outline-primary"
         (click)="pagePrecedente()"
         [disabled]="page === 1">
         Précédent
       </button>
-
+      <span class="align-self-center text-muted">
+        Page {{ page }} / {{ Math.ceil(totalAssignments / pageSize) }}
+      </span>
       <button
         class="btn btn-outline-primary"
         (click)="pageSuivante()">
         Suivant
       </button>
-
     </div>
 
   </div>

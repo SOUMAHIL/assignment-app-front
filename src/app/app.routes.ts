@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 import { AssignmentsComponent } from './assignments/assignments';
 import { AssignmentDetailComponent } from './assignment-detail/assignment-detail';
+import { Login } from './login/login';
 
 export const routes: Routes = [
 
@@ -9,6 +10,12 @@ export const routes: Routes = [
   {
     path: '',
     component: AssignmentsComponent
+  },
+
+  // Page login
+  {
+    path: 'login',
+    component: Login
   },
 
   // Page détail assignment
