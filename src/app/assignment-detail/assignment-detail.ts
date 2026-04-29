@@ -32,7 +32,8 @@ export class AssignmentDetailComponent implements OnInit {
       return;
     }
 
-    this.http.get<any>('https://assignment-app-back.onrender.com/api/assignments/' + id)
+    // ✅ URL corrigée (sans /api)
+    this.http.get<any>('https://assignment-app-back.onrender.com/assignments/' + id)
       .subscribe((data) => {
 
         console.log("DETAIL OK :", data);
@@ -41,11 +42,11 @@ export class AssignmentDetailComponent implements OnInit {
         this.loading = false;
         this.erreur = false;
 
-        this.cd.detectChanges(); // 🔥 force affichage
+        this.cd.detectChanges();
 
       }, (err) => {
 
-        console.log(err);
+        console.error("ERREUR DETAIL :", err);
 
         this.loading = false;
         this.erreur = true;

@@ -16,8 +16,8 @@ export class AssignmentsComponent implements OnInit {
   loading = true;
   erreur = false;
 
-  // 🔥 URL de ton backend
-  API_URL = 'https://assignment-app-back.onrender.com/api/assignments';
+  // ✅ URL corrigée
+  API_URL = 'https://assignment-app-back.onrender.com/assignments';
 
   constructor(private http: HttpClient) {}
 
@@ -34,11 +34,10 @@ export class AssignmentsComponent implements OnInit {
           this.loading = false;
         },
         error: (err) => {
-          console.error(err);
+          console.error("ERREUR API :", err);
           this.loading = false;
           this.erreur = true;
         }
       });
   }
-
 }
