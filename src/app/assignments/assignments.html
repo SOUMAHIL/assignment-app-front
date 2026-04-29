@@ -110,6 +110,7 @@
   <div class="card-app mb-4">
     <input
       [(ngModel)]="searchText"
+       (ngModelChange)="onSearch()"
       class="form-control"
       placeholder="🔎 Rechercher...">
   </div>

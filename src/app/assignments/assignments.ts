@@ -99,15 +99,26 @@ dernierePage() {
   this.page = Math.ceil(this.assignments.length / this.pageSize);
   this.updatePage();
 }
+onSearch() {
+  this.page = 1;
+  this.updatePage();
+}
   // ==============================
   // PAGINATION
   // ==============================
-  updatePage() {
-    const debut = (this.page - 1) * this.pageSize;
-    const fin = debut + this.pageSize;
-    this.assignmentsPages = this.assignments.slice(debut, fin);
-  }
+ // Remplace updatePage()
+updatePage() {
+  const filtered = this.assignments.filter(a =>
+    !this.searchText ||
+    a.nom?.toLowerCase().includes(this.searchText.toLowerCase()) ||
+    a.auteur?.toLowerCase().includes(this.searchText.toLowerCase()) ||
+    a.matiere?.toLowerCase().includes(this.searchText.toLowerCase())
+  );
 
+  this.totalAssignments = filtered.length;
+  const debut = (this.page - 1) * this.pageSize;
+  this.assignmentsPages = filtered.slice(debut, debut + this.pageSize);
+}
   pagePrecedente() {
     if (this.page > 1) {
       this.page--;
@@ -227,10 +238,75 @@ dernierePage() {
   // EXPORT
   // ==============================
   exportPDF() {
-    alert('Export PDF non implémenté');
+   const doc = document.createElement('div');
+  doc.innerHTML = `
+    <h2>Assignment Manager — Export PDF</h2>
+    <p>Total: ${this.totalAssignments} | Rendus: ${this.totalRendus} | Non rendus: ${this.totalNonRendus}</p>
+    <table border="1" cellpadding="6" cellspacing="0" style="width:100%;border-collapse:collapse">
+      <thead>
+        <tr style="background:#222;color:#fff">
+          <th>Nom</th><th>Auteur</th><th>Matière</th><th>Prof</th><th>Note</th><th>Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${this.assignments.map(a => `
+          <tr>
+            <td>${a.nom}</td>
+            <td>${a.auteur}</td>
+            <td>${a.matiere}</td>
+            <td>${a.prof}</td>
+            <td>${a.note}/20</td>
+            <td>${a.rendu ? 'Rendu' : 'Non rendu'}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+
+  const win = window.open('', '_blank');
+  if (win) {
+    win.document.write(`
+      <html>
+        <head>
+          <title>Export PDF</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid #ccc; padding: 6px; font-size: 12px; }
+            th { background: #222; color: #fff; }
+            tr:nth-child(even) { background: #f5f5f5; }
+          </style>
+        </head>
+        <body>${doc.innerHTML}</body>
+      </html>
+    `);
+    win.document.close();
+    win.print(); // ← ouvre la boîte de dialogue impression/PDF
+  }
   }
 
   exportExcel() {
-    alert('Export Excel non implémenté');
+     const lignes = [
+    ['Nom', 'Auteur', 'Matière', 'Prof', 'Note', 'Statut'],
+    ...this.assignments.map(a => [
+      a.nom,
+      a.auteur,
+      a.matiere,
+      a.prof,
+      a.note + '/20',
+      a.rendu ? 'Rendu' : 'Non rendu'
+    ])
+  ];
+
+  const contenu = lignes.map(l => l.join('\t')).join('\n');
+  const blob = new Blob([contenu], { type: 'application/vnd.ms-excel' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'assignments.xls';
+  a.click();
+
+  URL.revokeObjectURL(url);
   }
 }
