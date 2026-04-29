@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms'; // 🔥 IMPORTANT
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-assignments',
@@ -19,7 +19,6 @@ export class AssignmentsComponent implements OnInit {
   loading = true;
   erreur = false;
 
-  // 🔥 VARIABLES MANQUANTES
   estConnecte = false;
 
   totalAssignments = 0;
@@ -34,28 +33,42 @@ export class AssignmentsComponent implements OnInit {
   searchText = '';
 
   matieres = [
-    { nom: 'Web' },
-    { nom: 'Java' }
+    { nom: 'Angular' },
+    { nom: 'Base de données' },
+    { nom: 'Java' },
+    { nom: 'Technologies Web' }
   ];
 
   editingId: string | null = null;
   nomModifie = '';
 
   page = 1;
+  pageSize = 10;
 
   API_URL = 'https://assignment-app-back.onrender.com/assignments';
 
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
+    // Vérifie si token présent au chargement
+    const token = localStorage.getItem('token');
+    if (token) {
+      this.estConnecte = true;
+    }
     this.getAssignments();
   }
 
+  // ==============================
+  // GET ALL
+  // ==============================
   getAssignments() {
+    this.loading = true;
+    this.erreur = false;
+
     this.http.get<any[]>(this.API_URL).subscribe({
       next: (data) => {
         this.assignments = data;
-        this.assignmentsPages = data;
+        this.updatePage();
 
         this.totalAssignments = data.length;
         this.totalRendus = data.filter(a => a.rendu).length;
@@ -63,63 +76,147 @@ export class AssignmentsComponent implements OnInit {
 
         this.loading = false;
       },
-      error: () => {
+      error: (err) => {
+        console.error('Erreur API :', err);
         this.erreur = true;
         this.loading = false;
       }
     });
   }
 
-  // 🔥 FONCTIONS VIDES (pour éviter crash)
+  // ==============================
+  // PAGINATION
+  // ==============================
+  updatePage() {
+    const debut = (this.page - 1) * this.pageSize;
+    const fin = debut + this.pageSize;
+    this.assignmentsPages = this.assignments.slice(debut, fin);
+  }
 
+  pagePrecedente() {
+    if (this.page > 1) {
+      this.page--;
+      this.updatePage();
+    }
+  }
+
+  pageSuivante() {
+    const maxPage = Math.ceil(this.assignments.length / this.pageSize);
+    if (this.page < maxPage) {
+      this.page++;
+      this.updatePage();
+    }
+  }
+
+  // ==============================
+  // AUTH
+  // ==============================
   ouvrirLogin() {
-    alert('Login non implémenté');
+    // Redirige vers /login si tu as la route, sinon alert
+    alert('Utilisez la page de login');
   }
 
   logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     this.estConnecte = false;
   }
 
+  getHeaders() {
+    const token = localStorage.getItem('token');
+    return { headers: new HttpHeaders({ Authorization: 'Bearer ' + token }) };
+  }
+
+  // ==============================
+  // AJOUTER
+  // ==============================
   ajouterAssignment() {
-    alert('Ajout non implémenté');
+    if (!this.nouvelAssignment || !this.auteur || !this.matiere) {
+      alert('Remplis tous les champs obligatoires');
+      return;
+    }
+
+    const body = {
+      nom: this.nouvelAssignment,
+      auteur: this.auteur,
+      matiere: this.matiere,
+      note: this.note,
+      remarques: this.remarques,
+      rendu: false
+    };
+
+    this.http.post(this.API_URL, body, this.getHeaders()).subscribe({
+      next: () => {
+        this.nouvelAssignment = '';
+        this.auteur = '';
+        this.matiere = '';
+        this.note = 0;
+        this.remarques = '';
+        this.getAssignments();
+      },
+      error: (err) => {
+        console.error('Erreur ajout :', err);
+        alert('Erreur lors de l\'ajout');
+      }
+    });
   }
 
+  // ==============================
+  // TOGGLE RENDU
+  // ==============================
   toggleRendu(a: any) {
-    a.rendu = !a.rendu;
+    const body = { ...a, rendu: !a.rendu };
+
+    this.http.put(this.API_URL + '/' + a._id, body, this.getHeaders()).subscribe({
+      next: () => this.getAssignments(),
+      error: (err) => console.error('Erreur toggle :', err)
+    });
   }
 
+  // ==============================
+  // SUPPRIMER
+  // ==============================
   supprimerAssignment(id: string) {
-    this.assignments = this.assignments.filter(a => a._id !== id);
-    this.assignmentsPages = this.assignments;
+    if (!confirm('Supprimer cet assignment ?')) return;
+
+    this.http.delete(this.API_URL + '/' + id, this.getHeaders()).subscribe({
+      next: () => this.getAssignments(),
+      error: (err) => console.error('Erreur suppression :', err)
+    });
   }
 
+  // ==============================
+  // EDITION
+  // ==============================
   commencerEdition(a: any) {
     this.editingId = a._id;
     this.nomModifie = a.nom;
   }
 
   sauvegarderEdition(a: any) {
-    a.nom = this.nomModifie;
-    this.editingId = null;
+    const body = { ...a, nom: this.nomModifie };
+
+    this.http.put(this.API_URL + '/' + a._id, body, this.getHeaders()).subscribe({
+      next: () => {
+        this.editingId = null;
+        this.getAssignments();
+      },
+      error: (err) => console.error('Erreur édition :', err)
+    });
   }
 
   annulerEdition() {
     this.editingId = null;
   }
 
-  pagePrecedente() {
-    if (this.page > 1) this.page--;
-  }
-
-  pageSuivante() {
-    this.page++;
-  }
-
+  // ==============================
+  // EXPORT
+  // ==============================
   exportPDF() {
-    alert('PDF non implémenté');
+    alert('Export PDF non implémenté');
   }
 
   exportExcel() {
-    alert('Excel non implémenté');
+    alert('Export Excel non implémenté');
   }
 }
