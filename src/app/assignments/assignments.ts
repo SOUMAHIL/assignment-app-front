@@ -50,40 +50,40 @@ export class AssignmentsComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    // Vérifie si token présent au chargement
-    const token = localStorage.getItem('token');
-    if (token) {
-      this.estConnecte = true;
-    }
-    this.getAssignments();
+  const token = localStorage.getItem('token');
+  if (token) {
+    this.estConnecte = true;
   }
-
+  this.page = 1; // ← reset page au démarrage
+  this.getAssignments();
+}
   // ==============================
   // GET ALL
   // ==============================
   getAssignments() {
-    this.loading = true;
-    this.erreur = false;
+  this.loading = true;
+  this.erreur = false;
 
-    this.http.get<any[]>(this.API_URL).subscribe({
-      next: (data) => {
-        this.assignments = data;
-        this.updatePage();
+  this.http.get<any[]>(this.API_URL).subscribe({
+    next: (data) => {
+      this.assignments = data;
 
-        this.totalAssignments = data.length;
-        this.totalRendus = data.filter(a => a.rendu).length;
-        this.totalNonRendus = data.filter(a => !a.rendu).length;
+      this.totalAssignments = data.length;
+      this.totalRendus = data.filter(a => a.rendu).length;
+      this.totalNonRendus = data.filter(a => !a.rendu).length;
 
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Erreur API :', err);
-        this.erreur = true;
-        this.loading = false;
-      }
-    });
-  }
+      this.page = 1;        // ← reset à page 1
+      this.updatePage();    // ← APRÈS que data est chargé
 
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('Erreur API :', err);
+      this.erreur = true;
+      this.loading = false;
+    }
+  });
+}
   // ==============================
   // PAGINATION
   // ==============================
