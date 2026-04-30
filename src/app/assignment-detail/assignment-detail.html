@@ -1,20 +1,32 @@
 <div class="container mt-5">
 
-  <div *ngIf="loading" class="text-center">
-    <h2>Chargement...</h2>
+  <!-- LOADING -->
+  <div *ngIf="loading" class="text-center p-4">
+    <div class="spinner-border text-primary"></div>
+    <p class="mt-2">Chargement...</p>
   </div>
 
-  <div *ngIf="erreur" class="alert alert-danger text-center">
-    Erreur chargement
+  <!-- ERREUR -->
+  <div *ngIf="erreur && !loading" class="alert alert-danger text-center">
+    ❌ Erreur lors du chargement
     <br><br>
-    <a routerLink="/" class="btn btn-primary">Retour</a>
+    <button (click)="retour()" class="btn btn-primary">
+      ⬅ Retour au dashboard
+    </button>
   </div>
 
-  <div *ngIf="assignment && !loading" class="card shadow p-4">
+  <!-- DETAIL -->
+  <div *ngIf="assignment && !loading" class="card shadow p-4 mx-auto"
+    style="max-width: 600px;">
 
-    <h2 class="text-center mb-4">
-      {{ assignment.nom }}
-    </h2>
+    <!-- IMAGE -->
+    <div class="text-center mb-3">
+      <img
+        [src]="assignment.image || 'https://cdn-icons-png.flaticon.com/512/1055/1055687.png'"
+        width="80" height="80" style="object-fit:contain">
+    </div>
+
+    <h2 class="text-center mb-4">{{ assignment.nom }}</h2>
 
     <p><strong>Auteur :</strong> {{ assignment.auteur }}</p>
     <p><strong>Matière :</strong> {{ assignment.matiere }}</p>
@@ -24,20 +36,14 @@
 
     <p>
       <strong>Statut :</strong>
-
-      <span *ngIf="assignment.rendu" class="badge bg-success">
-        Rendu
-      </span>
-
-      <span *ngIf="!assignment.rendu" class="badge bg-danger">
-        Non rendu
-      </span>
+      <span *ngIf="assignment.rendu" class="badge bg-success ms-1">Rendu</span>
+      <span *ngIf="!assignment.rendu" class="badge bg-danger ms-1">Non rendu</span>
     </p>
 
     <div class="text-center mt-4">
-      <a routerLink="/" class="btn btn-primary">
-        ⬅ Retour
-      </a>
+      <button (click)="retour()" class="btn btn-primary">
+        ⬅ Retour au dashboard
+      </button>
     </div>
 
   </div>

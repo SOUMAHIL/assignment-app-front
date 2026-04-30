@@ -6,10 +6,10 @@ import { Login } from './login/login';
 
 export const routes: Routes = [
 
-  // Redirige vers login par défaut
+  // Racine → dashboard si connecté
   {
     path: '',
-    redirectTo: 'login',
+    redirectTo: 'dashboard',
     pathMatch: 'full'
   },
 
@@ -34,7 +34,7 @@ export const routes: Routes = [
   // Redirection si route inconnue
   {
     path: '**',
-    redirectTo: 'login'
+    redirectTo: 'dashboard'
   }
 
 ];
