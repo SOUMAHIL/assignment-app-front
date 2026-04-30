@@ -18,7 +18,6 @@ export class AssignmentsComponent implements OnInit {
 
   loading = true;
   erreur = false;
-
   estConnecte = false;
 
   totalAssignments = 0;
@@ -47,12 +46,18 @@ export class AssignmentsComponent implements OnInit {
   pageSize = 10;
   Math = Math;
 
+  // ==============================
+  // TRI
+  // ==============================
+  sortColonne = '';
+  sortDirection: 'asc' | 'desc' = 'asc';
+
   API_URL = 'https://assignment-app-back.onrender.com/assignments';
 
   constructor(
     private http: HttpClient,
     private router: Router,
-    private cd: ChangeDetectorRef  // ✅ AJOUT
+    private cd: ChangeDetectorRef
   ) {}
 
   // ==============================
@@ -80,28 +85,75 @@ export class AssignmentsComponent implements OnInit {
         this.page = 1;
         this.updatePage();
         this.loading = false;
-        this.cd.detectChanges(); // ✅ FORCE la mise à jour de la vue
+        this.cd.detectChanges();
       },
       error: (err) => {
         console.error('Erreur API :', err);
         this.erreur = true;
         this.loading = false;
-        this.cd.detectChanges(); // ✅ FORCE même en cas d'erreur
+        this.cd.detectChanges();
       }
     });
   }
 
   // ==============================
-  // PAGINATION + RECHERCHE
+  // TRI PAR COLONNE
+  // ==============================
+  trier(colonne: string) {
+    if (this.sortColonne === colonne) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColonne = colonne;
+      this.sortDirection = 'asc';
+    }
+    this.page = 1;
+    this.updatePage();
+  }
+
+  getIconeTri(colonne: string): string {
+    if (this.sortColonne !== colonne) return '↕';
+    return this.sortDirection === 'asc' ? '↑' : '↓';
+  }
+
+  // ==============================
+  // PAGINATION + RECHERCHE + TRI
   // ==============================
   updatePage() {
-    const filtered = this.assignments.filter(a =>
+    // 1. Filtrage
+    let filtered = this.assignments.filter(a =>
       !this.searchText ||
       a.nom?.toLowerCase().includes(this.searchText.toLowerCase()) ||
       a.auteur?.toLowerCase().includes(this.searchText.toLowerCase()) ||
       a.matiere?.toLowerCase().includes(this.searchText.toLowerCase())
     );
 
+    // 2. Tri
+    if (this.sortColonne) {
+      filtered = [...filtered].sort((a, b) => {
+        let valA = a[this.sortColonne];
+        let valB = b[this.sortColonne];
+
+        // Cas booléen (rendu)
+        if (typeof valA === 'boolean') {
+          valA = valA ? 1 : 0;
+          valB = valB ? 1 : 0;
+        }
+
+        // Cas numérique
+        if (typeof valA === 'number') {
+          return this.sortDirection === 'asc' ? valA - valB : valB - valA;
+        }
+
+        // Cas texte
+        const strA = (valA || '').toString().toLowerCase();
+        const strB = (valB || '').toString().toLowerCase();
+        if (strA < strB) return this.sortDirection === 'asc' ? -1 : 1;
+        if (strA > strB) return this.sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    // 3. Pagination
     this.totalAssignments = filtered.length;
     const debut = (this.page - 1) * this.pageSize;
     this.assignmentsPages = filtered.slice(debut, debut + this.pageSize);
@@ -295,10 +347,7 @@ export class AssignmentsComponent implements OnInit {
     const lignes = [
       ['Nom', 'Auteur', 'Matière', 'Prof', 'Note', 'Statut'],
       ...this.assignments.map(a => [
-        a.nom,
-        a.auteur,
-        a.matiere,
-        a.prof,
+        a.nom, a.auteur, a.matiere, a.prof,
         a.note + '/20',
         a.rendu ? 'Rendu' : 'Non rendu'
       ])

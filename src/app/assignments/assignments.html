@@ -41,45 +41,37 @@
   <!-- FORMULAIRE (admin seulement) -->
   <div class="card-app mb-4" *ngIf="estConnecte">
     <div class="row g-3">
-
       <div class="col-md-4">
         <input [(ngModel)]="nouvelAssignment" class="form-control"
           placeholder="📝 Nom du devoir">
       </div>
-
       <div class="col-md-4">
         <input [(ngModel)]="auteur" class="form-control"
           placeholder="👤 Auteur">
       </div>
-
       <div class="col-md-4">
         <select [(ngModel)]="matiere" class="form-select">
           <option value="">Choisir matière</option>
           <option *ngFor="let m of matieres" [value]="m.nom">{{ m.nom }}</option>
         </select>
       </div>
-
       <div class="col-md-3">
         <input [(ngModel)]="note" type="number" min="0" max="20"
           class="form-control" placeholder="Note /20">
       </div>
-
       <div class="col-md-5">
         <input [(ngModel)]="remarques" class="form-control"
           placeholder="💬 Remarques">
       </div>
-
       <div class="col-md-4">
         <input [(ngModel)]="image" class="form-control"
           placeholder="🖼 URL image (optionnel)">
       </div>
-
       <div class="col-md-12">
         <button (click)="ajouterAssignment()" class="btn btn-primary w-100">
           ➕ Ajouter
         </button>
       </div>
-
     </div>
   </div>
 
@@ -109,21 +101,54 @@
 
     <!-- ERREUR -->
     <div *ngIf="erreur && !loading" class="alert alert-danger text-center">
-      ❌ Impossible de charger les données. Vérifiez votre connexion.
+      ❌ Impossible de charger les données.
+      <br><br>
+      <button class="btn btn-primary btn-sm" (click)="getAssignments()">
+        🔄 Réessayer
+      </button>
     </div>
 
     <table *ngIf="!loading && !erreur" class="table table-hover align-middle">
 
       <thead class="table-dark">
         <tr>
+
+          <!-- Image : pas de tri -->
           <th>Image</th>
-          <th>Nom</th>
-          <th>Auteur</th>
-          <th>Matière</th>
-          <th>Prof</th>
-          <th>Note</th>
-          <th>Statut</th>
+
+          <!-- Nom -->
+          <th style="cursor:pointer" (click)="trier('nom')">
+            Nom {{ getIconeTri('nom') }}
+          </th>
+
+          <!-- Auteur -->
+          <th style="cursor:pointer" (click)="trier('auteur')">
+            Auteur {{ getIconeTri('auteur') }}
+          </th>
+
+          <!-- Matière -->
+          <th style="cursor:pointer" (click)="trier('matiere')">
+            Matière {{ getIconeTri('matiere') }}
+          </th>
+
+          <!-- Prof -->
+          <th style="cursor:pointer" (click)="trier('prof')">
+            Prof {{ getIconeTri('prof') }}
+          </th>
+
+          <!-- Note -->
+          <th style="cursor:pointer" (click)="trier('note')">
+            Note {{ getIconeTri('note') }}
+          </th>
+
+          <!-- Statut -->
+          <th style="cursor:pointer" (click)="trier('rendu')">
+            Statut {{ getIconeTri('rendu') }}
+          </th>
+
+          <!-- Actions : pas de tri -->
           <th width="200">Actions</th>
+
         </tr>
       </thead>
 
@@ -131,7 +156,8 @@
         <tr *ngFor="let a of assignmentsPages">
 
           <td>
-            <img [src]="a.image || 'https://cdn-icons-png.flaticon.com/512/1055/1055687.png'"
+            <img
+              [src]="a.image || 'https://cdn-icons-png.flaticon.com/512/1055/1055687.png'"
               width="40" height="40" style="object-fit:contain">
           </td>
 
@@ -151,7 +177,8 @@
           </td>
 
           <td>
-            <a [routerLink]="['/detail', a._id]" class="btn btn-info btn-sm me-1">👁</a>
+            <a [routerLink]="['/detail', a._id]"
+               class="btn btn-info btn-sm me-1">👁</a>
 
             <button *ngIf="estConnecte" (click)="toggleRendu(a)"
               class="btn btn-success btn-sm me-1">✔</button>
@@ -160,13 +187,16 @@
               class="btn btn-danger btn-sm me-1">✖</button>
 
             <button *ngIf="editingId !== a._id && estConnecte"
-              (click)="commencerEdition(a)" class="btn btn-warning btn-sm me-1">✏️</button>
+              (click)="commencerEdition(a)"
+              class="btn btn-warning btn-sm me-1">✏️</button>
 
             <button *ngIf="editingId === a._id"
-              (click)="sauvegarderEdition(a)" class="btn btn-primary btn-sm me-1">💾</button>
+              (click)="sauvegarderEdition(a)"
+              class="btn btn-primary btn-sm me-1">💾</button>
 
             <button *ngIf="editingId === a._id"
-              (click)="annulerEdition()" class="btn btn-secondary btn-sm">↩</button>
+              (click)="annulerEdition()"
+              class="btn btn-secondary btn-sm">↩</button>
           </td>
 
         </tr>
