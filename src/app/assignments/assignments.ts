@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
@@ -49,7 +49,11 @@ export class AssignmentsComponent implements OnInit {
 
   API_URL = 'https://assignment-app-back.onrender.com/assignments';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private cd: ChangeDetectorRef  // ✅ AJOUT
+  ) {}
 
   // ==============================
   // INIT
@@ -76,11 +80,13 @@ export class AssignmentsComponent implements OnInit {
         this.page = 1;
         this.updatePage();
         this.loading = false;
+        this.cd.detectChanges(); // ✅ FORCE la mise à jour de la vue
       },
       error: (err) => {
         console.error('Erreur API :', err);
         this.erreur = true;
         this.loading = false;
+        this.cd.detectChanges(); // ✅ FORCE même en cas d'erreur
       }
     });
   }
